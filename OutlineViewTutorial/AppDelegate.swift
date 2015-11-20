@@ -9,17 +9,27 @@
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSOutlineViewDataSource, NSOutlineViewDelegate {
 
 	@IBOutlet weak var window: NSWindow!
+	@IBOutlet weak var treeController: NSTreeController!
+	@IBOutlet weak var outlineView: NSOutlineView!
 
-
+	let dragType : String = "testTreeDragType"
+	
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
 		// Insert code here to initialize your application
 	}
 
 	func applicationWillTerminate(aNotification: NSNotification) {
 		// Insert code here to tear down your application
+	}
+	
+	override func awakeFromNib() {
+		// Insert code here after it is created
+		
+		// Register for the dragged type
+		outlineView!.registerForDraggedTypes([dragType])
 	}
 
 	// MARK: - Core Data stack
@@ -28,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	    // The directory the application uses to store the Core Data store file. This code uses a directory named "com.cranysoft.OutlineViewTutorial" in the user's Application Support directory.
 	    let urls = NSFileManager.defaultManager().URLsForDirectory(.ApplicationSupportDirectory, inDomains: .UserDomainMask)
 	    let appSupportURL = urls[urls.count - 1] as NSURL
-	    return appSupportURL.URLByAppendingPathComponent("com.cranysoft.OutlineViewTutorial")
+	    return appSupportURL.URLByAppendingPathComponent("com.crankysoft.OutlineViewTutorial")
 	}()
 
 	lazy var managedObjectModel: NSManagedObjectModel = {
@@ -45,7 +55,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	    var failureReason = "There was an error creating or loading the application's saved data."
 
 	    // Make sure the application files directory is there
-	    let propertiesOpt = self.applicationDocumentsDirectory.resourceValuesForKeys([NSURLIsDirectoryKey], error: &error)
+		let propertiesOpt: [NSObject: AnyObject]?
+		do {
+			propertiesOpt = try self.applicationDocumentsDirectory.resourceValuesForKeys([NSURLIsDirectoryKey])
+		} catch var error1 as NSError {
+			error = error1
+			propertiesOpt = nil
+		} catch {
+			fatalError()
+		}
 	    if let properties = propertiesOpt {
 	        if !properties[NSURLIsDirectoryKey]!.boolValue {
 	            failureReason = "Expected a folder to store application data, found a file \(self.applicationDocumentsDirectory.path)."
@@ -53,7 +71,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	        }
 	    } else if error!.code == NSFileReadNoSuchFileError {
 	        error = nil
-	        fileManager.createDirectoryAtPath(self.applicationDocumentsDirectory.path!, withIntermediateDirectories: true, attributes: nil, error: &error)
+	        do {
+				try fileManager.createDirectoryAtPath(self.applicationDocumentsDirectory.path!, withIntermediateDirectories: true, attributes: nil)
+			} catch var error1 as NSError {
+				error = error1
+			} catch {
+				fatalError()
+			}
 	    }
 	    
 	    // Create the coordinator and store
@@ -61,9 +85,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	    if !shouldFail && (error == nil) {
 	        coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
 	        let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent("OutlineViewTutorial.storedata")
-	        if coordinator!.addPersistentStoreWithType(NSXMLStoreType, configuration: nil, URL: url, options: nil, error: &error) == nil {
+	        do {
+				try coordinator!.addPersistentStoreWithType(NSXMLStoreType, configuration: nil, URL: url, options: nil)
+			} catch var error1 as NSError {
+				error = error1
 	            coordinator = nil
-	        }
+	        } catch {
+				fatalError()
+			}
 	    }
 	    
 	    if shouldFail || (error != nil) {
@@ -74,7 +103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	        if error != nil {
 	            dict[NSUnderlyingErrorKey] = error
 	        }
-	        error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict)
+	        error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: nil)
 	        NSApplication.sharedApplication().presentError(error!)
 	        return nil
 	    } else {
@@ -102,9 +131,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	            NSLog("\(NSStringFromClass(self.dynamicType)) unable to commit editing before saving")
 	        }
 	        var error: NSError? = nil
-	        if moc.hasChanges && !moc.save(&error) {
-	            NSApplication.sharedApplication().presentError(error!)
-	        }
+	        if moc.hasChanges {
+				do {
+					try moc.save()
+				} catch let error1 as NSError {
+					error = error1
+					NSApplication.sharedApplication().presentError(error!)
+				}
+			}
 	    }
 	}
 
@@ -131,7 +165,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	        }
 	        
 	        var error: NSError? = nil
-	        if !moc.save(&error) {
+	        do {
+				try moc.save()
+			} catch let error1 as NSError {
+				error = error1
 	            // Customize this code block to include application-specific recovery steps.
 	            let result = sender.presentError(error!)
 	            if (result) {
@@ -156,6 +193,136 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	    }
 	    // If we got here, it is time to quit.
 	    return .TerminateNow
+	}
+	
+	
+	// MARK: - NSOutlineView Data Source Helper Functions
+	
+	func childrenOfNode(node : AnyObject?) -> NSSet?{
+		// 1. If we have a node then return it's children
+		// 2. Else we need to locate the root node and try to return it's children
+		// 3. Finally we exhaust our choices and return nil
+		if node != nil{
+			let item : Test! = node as! Test
+			let children : NSSet? = item.children
+			return children
+		}else if let rootTreeNode : NSTreeNode = treeController.arrangedObjects.descendantNodeAtIndexPath(NSIndexPath(index: 0)){
+			if let rootNode : Test = rootTreeNode.representedObject as? Test{
+				return rootNode.children
+			}
+		}
+		return nil
+	}
+	
+	func rootNode() -> Test?{
+		if let rootTreeNode : NSTreeNode = treeController.arrangedObjects.descendantNodeAtIndexPath(NSIndexPath(index: 0)){
+			return rootTreeNode.representedObject as? Test
+		}else{
+			return nil
+		}
+	}
+	
+	func isLeaf(item : AnyObject?) -> Bool{
+        
+		if item != nil{
+			if let children = item?.children{
+				if children?.count == 0 {
+					return true
+				}else{
+					return false
+				}
+			}
+		}
+		// item is nil
+		return false
+	}
+	
+	// MARK: - NSOutlineView Data Source Required Functions
+	
+	// Set the View Cell objects to the data from the TreeItem
+	func outlineView(outlineView: NSOutlineView, viewForTableColumn tableColumn: NSTableColumn?, item: AnyObject) -> NSView? {
+		let identifier : NSString? = tableColumn?.identifier
+		var tableCellView : NSTableCellView?
+		
+		if identifier!.isEqualToString("MainCell"){
+			
+			// Supply the image and name
+			let treeItem : AnyObject? = item.representedObject
+			tableCellView = outlineView.makeViewWithIdentifier("MainCell", owner: self) as? NSTableCellView
+			
+			let imageView : NSImageView! = tableCellView?.valueForKey("imageView") as? NSImageView
+			let textField : NSTextField! = tableCellView?.valueForKey("textField") as? NSTextField
+            
+            
+            
+			if isLeaf(treeItem){
+				imageView.image = NSImage(named: "leaf")
+			}else{
+				imageView.image = NSImage(named: "folder")
+			}
+			
+			textField.stringValue = treeItem!.name
+		}
+		
+		return tableCellView
+	}
+	
+	// MARK: - NSOutlineView Drag and Drop Required Functions
+	
+	func outlineView(outlineView: NSOutlineView, writeItems
+		items: [AnyObject],
+		toPasteboard pasteboard: NSPasteboard) -> Bool {
+			
+			//get an array of URIs for the selected objects
+			let mutableArray : NSMutableArray = NSMutableArray()
+			
+			for object : AnyObject in items{
+				if let treeItem : AnyObject? = object.representedObject!{
+					mutableArray.addObject(treeItem!.objectID.URIRepresentation())
+				}
+			}
+			
+			let data : NSData = NSKeyedArchiver.archivedDataWithRootObject(mutableArray)
+			pasteboard.setData(data, forType: dragType)
+			
+			return true
+	}
+	
+	func outlineView(outlineView: NSOutlineView, validateDrop
+		info: NSDraggingInfo,
+		proposedItem item: AnyObject?,
+		proposedChildIndex index: Int) -> NSDragOperation {
+			return NSDragOperation.Move
+	}
+	
+	func outlineView(outlineView: NSOutlineView, acceptDrop
+		info: NSDraggingInfo,
+		item: AnyObject?,
+		childIndex index: Int) -> Bool {
+			
+			// Determine the parent node
+			var parentItem : AnyObject? = item?.representedObject
+			
+			// Get Dragged NSTreeNodes
+			let pasteboard : NSPasteboard = info.draggingPasteboard()
+			let data : NSData = pasteboard.dataForType(dragType)! as NSData
+			let draggedArray : NSArray = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! NSArray
+			
+			// Loop through DraggedArray
+			for object : AnyObject in draggedArray{
+				// Get the ID of the NSManagedObject
+				if let id : NSManagedObjectID? = persistentStoreCoordinator?.managedObjectIDForURIRepresentation(object as! NSURL){
+					// Set new parent to the dragged item
+					if let treeItem = managedObjectContext?.objectWithID(id!){
+						treeItem.setValue(parentItem, forKey: "parent")
+					}
+				}
+			}
+			
+			// Reload the OutlineView
+			outlineView.reloadData()
+			
+			return true
 	}
 
 }

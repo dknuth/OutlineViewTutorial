@@ -12,6 +12,9 @@
 		7603396C1A53250500A89EB9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7603396B1A53250500A89EB9 /* Images.xcassets */; };
 		7603396F1A53250500A89EB9 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7603396D1A53250500A89EB9 /* MainMenu.xib */; };
 		7603397B1A53250500A89EB9 /* OutlineViewTutorialTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7603397A1A53250500A89EB9 /* OutlineViewTutorialTests.swift */; };
+		760339851A53362B00A89EB9 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760339841A53362B00A89EB9 /* Test.swift */; };
+		760339881A53AACF00A89EB9 /* leaf.png in Resources */ = {isa = PBXBuildFile; fileRef = 760339861A53AACF00A89EB9 /* leaf.png */; };
+		760339891A53AACF00A89EB9 /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = 760339871A53AACF00A89EB9 /* folder.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +37,9 @@
 		760339741A53250500A89EB9 /* OutlineViewTutorialTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OutlineViewTutorialTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		760339791A53250500A89EB9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7603397A1A53250500A89EB9 /* OutlineViewTutorialTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineViewTutorialTests.swift; sourceTree = "<group>"; };
+		760339841A53362B00A89EB9 /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
+		760339861A53AACF00A89EB9 /* leaf.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leaf.png; sourceTree = "<group>"; };
+		760339871A53AACF00A89EB9 /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,10 +81,12 @@
 		760339631A53250500A89EB9 /* OutlineViewTutorial */ = {
 			isa = PBXGroup;
 			children = (
+				7603398A1A53AAEB00A89EB9 /* images */,
 				760339661A53250500A89EB9 /* AppDelegate.swift */,
 				7603396B1A53250500A89EB9 /* Images.xcassets */,
 				7603396D1A53250500A89EB9 /* MainMenu.xib */,
 				760339681A53250500A89EB9 /* OutlineViewTutorial.xcdatamodeld */,
+				760339841A53362B00A89EB9 /* Test.swift */,
 				760339641A53250500A89EB9 /* Supporting Files */,
 			);
 			path = OutlineViewTutorial;
@@ -107,6 +115,15 @@
 				760339791A53250500A89EB9 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		7603398A1A53AAEB00A89EB9 /* images */ = {
+			isa = PBXGroup;
+			children = (
+				760339861A53AACF00A89EB9 /* leaf.png */,
+				760339871A53AACF00A89EB9 /* folder.png */,
+			);
+			name = images;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -153,6 +170,8 @@
 		760339591A53250500A89EB9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0710;
+				LastSwiftUpdateCheck = 0710;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = CrankySoft;
 				TargetAttributes = {
@@ -190,7 +209,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				7603396C1A53250500A89EB9 /* Images.xcassets in Resources */,
+				760339891A53AACF00A89EB9 /* folder.png in Resources */,
 				7603396F1A53250500A89EB9 /* MainMenu.xib in Resources */,
+				760339881A53AACF00A89EB9 /* leaf.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +231,7 @@
 			files = (
 				7603396A1A53250500A89EB9 /* OutlineViewTutorial.xcdatamodeld in Sources */,
 				760339671A53250500A89EB9 /* AppDelegate.swift in Sources */,
+				760339851A53362B00A89EB9 /* Test.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,7 +299,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -314,7 +336,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
@@ -397,6 +419,7 @@
 				760339801A53250500A89EB9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		760339811A53250500A89EB9 /* Build configuration list for PBXNativeTarget "OutlineViewTutorialTests" */ = {
 			isa = XCConfigurationList;
@@ -405,6 +428,7 @@
 				760339831A53250500A89EB9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
